@@ -13,10 +13,10 @@ export class Factory {
 
 		options.serializers = [new serializer.JSONSerializer()];
 
-		options.protocols = [];
-		options.serializers.forEach(function (ser) {
-			options.protocols.push("wamp.2." + ser.SERIALIZER_ID);
-		});
+		options.protocols = 'wamp';
+		// options.serializers.forEach(function (ser) {
+		// 	options.protocols.push("wamp.2." + ser.SERIALIZER_ID);
+		// });
 
 		self._options = options;
 	}
@@ -36,7 +36,7 @@ export class Factory {
 			},
 			open: undefined,
 			// these will get defined further below
-			protocol: undefined,
+			protocol: 'wamp',
 			serializer: undefined,
 			send: undefined,
 			close: undefined,
@@ -78,23 +78,24 @@ export class Factory {
 				if (evt.data.length === 0) {
 					transport.onpong();
 				} else {
-					var msg = transport.serializer.unserialize(evt.data);
+					// var msg = transport.serializer.unserialize(evt.data);
+					var msg = evt.data
 					transport.onmessage(msg);
 				}
 			};
 
 			websocket.onopen = function (evt) {
 				if (!websocket.protocol) {
-					websocket.protocol = "wamp.2.json";
+					websocket.protocol = "wamp";
 				}
-				var serializer_part = websocket.protocol.split('.')[2];
-				for (var index in self._options.serializers) {
-					var serializer = self._options.serializers[index];
-					if (serializer.SERIALIZER_ID == serializer_part) {
-						transport.serializer = serializer;
-						break;
-					}
-				}
+				// var serializer_part = websocket.protocol.split('.')[2];
+				// for (var index in self._options.serializers) {
+				// 	var serializer = self._options.serializers[index];
+				// 	if (serializer.SERIALIZER_ID == serializer_part) {
+				// 		transport.serializer = serializer;
+				// 		break;
+				// 	}
+				// }
 
 				transport.info.protocol = websocket.protocol;
 				transport.onopen();
@@ -117,7 +118,8 @@ export class Factory {
 			//websocket.onerror = websocket.onclose;
 
 			transport.send = function (msg) {
-				var payload = transport.serializer.serialize(msg);
+				// var payload = transport.serializer.serialize(msg);
+				var payload = msg;
 				log.debug("WebSocket transport send", payload);
 				websocket.send(payload);
 			};
